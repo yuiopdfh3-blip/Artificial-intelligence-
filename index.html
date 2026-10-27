@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Metis</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -31,15 +31,24 @@
         }
     </script>
     <style>
-        body { font-family: 'Cairo', sans-serif; background-color: #000000; color: #ececee; }
+        html, body {
+            height: 100%;
+            height: -webkit-fill-available;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000000;
+            color: #ececee;
+            font-family: 'Cairo', sans-serif;
+        }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #22222e; border-radius: 10px; }
         
         /* Perfect White Morphing Loader: Circle <-> Square */
         .morph-loader {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             background-color: #ffffff;
             animation: morphing 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
             display: inline-block;
@@ -47,12 +56,12 @@
 
         @keyframes morphing {
             0%, 100% {
-                border-radius: 50%; /* Circle */
+                border-radius: 50%;
                 transform: rotate(0deg) scale(1);
                 background-color: #ffffff;
             }
             50% {
-                border-radius: 4px; /* Square */
+                border-radius: 4px;
                 transform: rotate(180deg) scale(0.9);
                 background-color: #d1d5db;
             }
@@ -61,58 +70,59 @@
         .prose pre { background-color: #0d0d12 !important; padding: 1rem; border-radius: 0.75rem; direction: ltr; text-align: left; border: 1px solid #1f1f2e; }
         .prose code { color: #f43f5e; font-size: 0.9em; }
         
-        /* Sidebar transition */
         #sidebar {
-            transition: transform 0.3s ease-in-out;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
     </style>
 </head>
-<body class="bg-black text-gray-200 h-screen flex flex-col justify-between overflow-hidden">
+<body class="flex flex-col justify-between">
 
+    <!-- Sidebar Overlay -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/70 z-40 hidden backdrop-blur-sm"></div>
+    
     <!-- Sidebar for Chat History -->
-    <div id="sidebarOverlay" class="fixed inset-0 bg-black/60 z-40 hidden backdrop-blur-sm"></div>
-    <aside id="sidebar" class="fixed top-0 right-0 bottom-0 w-72 bg-[#0a0a0e] border-l border-gray-900 z-50 transform translate-x-full flex flex-col justify-between p-4 shadow-2xl">
-        <div>
-            <div class="flex justify-between items-center mb-6">
+    <aside id="sidebar" class="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-[#0a0a0e] border-l border-gray-900 z-50 transform translate-x-full flex flex-col justify-between p-4 shadow-2xl">
+        <div class="flex flex-col h-full">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-900">
                 <h3 class="text-white font-semibold text-sm tracking-wide">سجل المحادثات</h3>
-                <button id="closeSidebar" class="text-gray-400 hover:text-white p-1.5"><i class="fa-solid fa-xmark"></i></button>
+                <button id="closeSidebar" class="text-gray-400 hover:text-white p-2"><i class="fa-solid fa-xmark text-base"></i></button>
             </div>
-            <button id="newChatBtn" class="w-full bg-[#14141c] hover:bg-[#1a1a24] text-white border border-gray-800 text-xs py-2.5 px-3 rounded-xl flex items-center gap-2 transition-all mb-4">
+            <button id="newChatBtn" class="w-full bg-[#14141c] hover:bg-[#1a1a24] text-white border border-gray-800 text-xs py-3 px-3 rounded-xl flex items-center gap-2 transition-all mb-3 shrink-0">
                 <i class="fa-solid fa-plus text-xs"></i>
                 <span>محادثة جديدة</span>
             </button>
-            <div id="historyList" class="space-y-1 overflow-y-auto max-h-[calc(100vh-160px)] pr-1">
+            <div id="historyList" class="flex-1 space-y-1.5 overflow-y-auto pr-1">
                 <!-- History items injected dynamically -->
             </div>
         </div>
-        <div class="text-xs text-gray-600 text-center py-2 border-t border-gray-900">
+        <div class="text-[11px] text-gray-600 text-center py-2 border-t border-gray-900 shrink-0">
             Metis AI - محفوظ محلياً
         </div>
     </aside>
 
     <!-- Header -->
-    <header class="w-full border-b border-gray-900 p-4 flex justify-between items-center bg-black/90 backdrop-blur z-10">
+    <header class="w-full border-b border-gray-900 p-3 flex justify-between items-center bg-black/95 backdrop-blur z-30 shrink-0">
         <div class="flex items-center gap-3">
-            <button id="openSidebar" class="text-gray-400 hover:text-white p-1 text-sm"><i class="fa-solid fa-bars"></i></button>
-            <span class="text-xl font-semibold tracking-wide text-white">Metis</span>
+            <button id="openSidebar" class="text-gray-300 hover:text-white p-1.5 text-lg"><i class="fa-solid fa-bars"></i></button>
+            <span class="text-lg font-semibold tracking-wide text-white">Metis</span>
         </div>
-        <button id="clearChatHeader" class="text-gray-400 hover:text-white transition-all text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0f0f13] border border-gray-800 hover:border-gray-700">
+        <button id="clearChatHeader" class="text-gray-300 hover:text-white transition-all text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0f0f13] border border-gray-800">
             <i class="fa-solid fa-rotate-right text-xs"></i>
             <span>محادثة جديدة</span>
         </button>
     </header>
 
     <!-- Chat Area -->
-    <main id="chatBox" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 max-w-3xl w-full mx-auto">
+    <main id="chatBox" class="flex-1 overflow-y-auto p-4 space-y-4 max-w-3xl w-full mx-auto">
         <!-- Minimal Welcome Screen -->
-        <div id="welcomeScreen" class="text-center my-auto py-24 flex flex-col items-center justify-center h-full space-y-3">
+        <div id="welcomeScreen" class="text-center my-auto py-12 flex flex-col items-center justify-center h-full space-y-3">
             <h2 class="text-3xl font-semibold text-white tracking-tight">Metis</h2>
             <p class="text-gray-400 text-sm">كيف يمكنني مساعدتك اليوم؟</p>
         </div>
     </main>
 
     <!-- Input Area -->
-    <footer class="p-4 bg-black border-t border-gray-900">
+    <footer class="p-3 bg-black border-t border-gray-900 shrink-0 z-30">
         <div class="max-w-3xl mx-auto">
             <!-- File Preview Area -->
             <div id="filePreviewContainer" class="hidden mb-2 flex items-center gap-2 bg-[#0f0f13] border border-gray-800 p-2 rounded-xl w-fit">
@@ -121,15 +131,15 @@
                 <button type="button" id="removeFile" class="text-gray-400 hover:text-red-400 p-1"><i class="fa-solid fa-xmark text-xs"></i></button>
             </div>
 
-            <form id="chatForm" class="flex items-end gap-2 bg-[#0f0f13] border border-gray-800 rounded-2xl p-2.5 focus-within:border-gray-600 transition-all shadow-lg">
+            <form id="chatForm" class="flex items-end gap-2 bg-[#0f0f13] border border-gray-800 rounded-2xl p-2 focus-within:border-gray-600 transition-all shadow-lg">
                 <!-- File Upload Button -->
-                <label class="cursor-pointer text-gray-400 hover:text-white p-2.5 rounded-xl hover:bg-gray-800/50 transition-all flex items-center justify-center">
+                <label class="cursor-pointer text-gray-400 hover:text-white p-2.5 rounded-xl hover:bg-gray-800/50 transition-all flex items-center justify-center shrink-0">
                     <i class="fa-solid fa-paperclip text-sm"></i>
                     <input type="file" id="fileInput" class="hidden" accept="image/*,.txt,.pdf">
                 </label>
 
                 <!-- Voice Input Button -->
-                <button type="button" id="micBtn" class="text-gray-400 hover:text-white p-2.5 rounded-xl hover:bg-gray-800/50 transition-all flex items-center justify-center">
+                <button type="button" id="micBtn" class="text-gray-400 hover:text-white p-2.5 rounded-xl hover:bg-gray-800/50 transition-all flex items-center justify-center shrink-0">
                     <i class="fa-solid fa-microphone text-sm" id="micIcon"></i>
                 </button>
 
@@ -137,7 +147,7 @@
                 <textarea id="userInput" rows="1" placeholder="اسأل ميتيس..." class="flex-1 bg-transparent text-gray-100 placeholder-gray-500 px-2 py-2 focus:outline-none resize-none max-h-32 text-sm leading-relaxed"></textarea>
                 
                 <!-- Send Button -->
-                <button type="submit" id="sendBtn" class="bg-white hover:bg-gray-200 text-black w-9 h-9 rounded-xl flex items-center justify-center transition-all disabled:opacity-30 font-medium">
+                <button type="submit" id="sendBtn" class="bg-white hover:bg-gray-200 text-black w-9 h-9 rounded-xl flex items-center justify-center transition-all disabled:opacity-30 font-medium shrink-0">
                     <i class="fa-solid fa-arrow-up text-xs"></i>
                 </button>
             </form>
@@ -161,7 +171,6 @@
         const micBtn = document.getElementById('micBtn');
         const micIcon = document.getElementById('micIcon');
         
-        // Sidebar elements
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const openSidebar = document.getElementById('openSidebar');
@@ -169,13 +178,26 @@
         const newChatBtn = document.getElementById('newChatBtn');
         const historyList = document.getElementById('historyList');
 
-        let currentChatId = localStorage.getItem('current_chat_id') || 'chat_' + Date.now();
         let chats = JSON.parse(localStorage.getItem('metis_chats') || '{}');
+        let currentChatId = localStorage.getItem('current_chat_id');
+
+        // Ensure valid current chat session
+        if (!currentChatId || !chats[currentChatId]) {
+            const keys = Object.keys(chats);
+            if (keys.length > 0) {
+                currentChatId = keys[keys.length - 1];
+            } else {
+                currentChatId = 'chat_' + Date.now();
+                chats[currentChatId] = { title: 'محادثة جديدة', messages: [] };
+            }
+            localStorage.setItem('current_chat_id', currentChatId);
+            localStorage.setItem('metis_chats', JSON.stringify(chats));
+        }
+
         let attachedFile = null;
         let isRecording = false;
         let recognition = null;
 
-        // Initialize Voice Recognition
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
@@ -212,7 +234,7 @@
 
         userInput.addEventListener('input', function() {
             this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
+            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
         });
 
         fileInput.addEventListener('change', (e) => {
@@ -241,7 +263,6 @@
             imagePreview.classList.add('hidden');
         });
 
-        // Sidebar toggles
         openSidebar.addEventListener('click', () => {
             sidebar.classList.remove('translate-x-full');
             sidebarOverlay.classList.remove('hidden');
@@ -267,9 +288,12 @@
 
         function createNewChat() {
             currentChatId = 'chat_' + Date.now();
+            chats[currentChatId] = { title: 'محادثة جديدة', messages: [] };
             localStorage.setItem('current_chat_id', currentChatId);
+            localStorage.setItem('metis_chats', JSON.stringify(chats));
+            
             chatBox.innerHTML = `
-                <div id="welcomeScreen" class="text-center my-auto py-24 flex flex-col items-center justify-center h-full space-y-3">
+                <div id="welcomeScreen" class="text-center my-auto py-12 flex flex-col items-center justify-center h-full space-y-3">
                     <h2 class="text-3xl font-semibold text-white tracking-tight">Metis</h2>
                     <p class="text-gray-400 text-sm">كيف يمكنني مساعدتك اليوم؟</p>
                 </div>
@@ -278,11 +302,17 @@
 
         function saveMessageToStorage(sender, content, rawParts) {
             if (!chats[currentChatId]) {
-                chats[currentChatId] = {
-                    title: content.replace(/<[^>]*>?/gm, '').substring(0, 30) || 'محادثة جديدة',
-                    messages: []
-                };
+                chats[currentChatId] = { title: 'محادثة جديدة', messages: [] };
             }
+            
+            // If it's the first user message, update chat title
+            if (sender === 'user' && chats[currentChatId].title === 'محادثة جديدة') {
+                const cleanText = content.replace(/<[^>]*>?/gm, '').trim();
+                if (cleanText) {
+                    chats[currentChatId].title = cleanText.substring(0, 28) + (cleanText.length > 28 ? '...' : '');
+                }
+            }
+
             chats[currentChatId].messages.push({ sender, content, rawParts });
             localStorage.setItem('metis_chats', JSON.stringify(chats));
         }
@@ -293,8 +323,14 @@
             chatBox.innerHTML = '';
             
             const chatData = chats[chatId];
-            if (!chatData || chatData.messages.length === 0) {
-                createNewChat();
+            if (!chatData || !chatData.messages || chatData.messages.length === 0) {
+                chatBox.innerHTML = `
+                    <div id="welcomeScreen" class="text-center my-auto py-12 flex flex-col items-center justify-center h-full space-y-3">
+                        <h2 class="text-3xl font-semibold text-white tracking-tight">Metis</h2>
+                        <p class="text-gray-400 text-sm">كيف يمكنني مساعدتك اليوم؟</p>
+                    </div>
+                `;
+                closeSidebarMenu();
                 return;
             }
 
@@ -308,14 +344,14 @@
             historyList.innerHTML = '';
             const keys = Object.keys(chats).reverse();
             if (keys.length === 0) {
-                historyList.innerHTML = '<div class="text-gray-600 text-xs text-center py-4">لا توجد محادثات سابقة</div>';
+                historyList.innerHTML = '<div class="text-gray-500 text-xs text-center py-4">لا توجد محادثات سابقة</div>';
                 return;
             }
 
             keys.forEach(id => {
                 const chat = chats[id];
                 const btn = document.createElement('button');
-                btn.className = `w-full text-right text-xs py-2 px-3 rounded-xl truncate transition-all flex items-center justify-between group ${id === currentChatId ? 'bg-[#1a1a24] text-white' : 'text-gray-400 hover:bg-[#121218] hover:text-white'}`;
+                btn.className = `w-full text-right text-xs py-2.5 px-3 rounded-xl truncate transition-all flex items-center justify-between group ${id === currentChatId ? 'bg-[#1a1a24] text-white font-medium' : 'text-gray-400 hover:bg-[#121218] hover:text-white'}`;
                 btn.innerHTML = `<span class="truncate">${chat.title || 'محادثة'}</span><i class="fa-solid fa-chevron-left text-[10px] opacity-0 group-hover:opacity-100"></i>`;
                 btn.addEventListener('click', () => loadChat(id));
                 historyList.appendChild(btn);
@@ -327,7 +363,8 @@
             const text = userInput.value.trim();
             if (!text && !attachedFile) return;
 
-            if (welcomeScreen) welcomeScreen.style.display = 'none';
+            const ws = document.getElementById('welcomeScreen');
+            if (ws) ws.style.display = 'none';
 
             let parts = [];
             let displayHtml = text;
@@ -357,7 +394,6 @@
             const loadingId = appendLoading();
             sendBtn.disabled = true;
 
-            // Build history payload for Gemini API
             let apiHistory = [];
             if (chats[currentChatId] && chats[currentChatId].messages) {
                 chats[currentChatId].messages.forEach(m => {
@@ -403,38 +439,4 @@
             });
         }
 
-        function appendMessage(sender, htmlContent, rawParts) {
-            appendMessageDOM(sender, htmlContent);
-            saveMessageToStorage(sender, htmlContent, rawParts);
-            if (welcomeScreen) welcomeScreen.style.display = 'none';
-        }
-
-        function appendMessageDOM(sender, htmlContent) {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
-            
-            const isUser = sender === 'user';
-            const content = isUser ? htmlContent : marked.parse(htmlContent);
-
-            msgDiv.innerHTML = `
-                <div class="max-w-[85%] md:max-w-[75%] rounded-2xl px-4 py-3 ${isUser ? 'bg-[#1a1a24] text-white rounded-br-none' : 'bg-[#0f0f13] text-gray-200 border border-gray-800/60 rounded-bl-none prose prose-invert'}">
-                    ${content}
-                </div>
-            `;
-            chatBox.appendChild(msgDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        function appendLoading() {
-            const id = 'loading-' + Date.now();
-            const loadingDiv = document.createElement('div');
-            loadingDiv.id = id;
-            loadingDiv.className = 'flex justify-start items-center gap-3 my-2';
-            loadingDiv.innerHTML = `
-                <div class="bg-[#0f0f13] border border-gray-800/60 rounded-2xl rounded-bl-none px-4 py-3 flex items-center gap-3">
-                    <div class="morph-loader"></div>
-                </div>
-            `;
-            chatBox.appendChild(loadingDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
-            r
+        function appendMessag
