@@ -1,475 +1,440 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ميتيس - Metis AI</title>
+    <title>Metis</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
+    <!-- FontAwesome icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Font: Cairo & Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-    <!-- Marked.js for Markdown Rendering -->
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Marked.js for markdown rendering -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <!-- Highlight.js for Syntax Highlighting -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
 
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        brand: {
-                            50: '#f0f4ff',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            900: '#0f172a'
-                        },
-                        darkbg: '#0d0d12',
-                        darkcard: '#16161e',
-                        userbubble: '#222330'
+                        bgDark: '#000000',
+                        cardDark: '#0f0f13',
+                        userBubble: '#1a1a24'
                     },
                     fontFamily: {
-                        sans: ['Cairo', 'Inter', 'sans-serif'],
+                        sans: ['Cairo', 'sans-serif'],
                     }
                 }
             }
         }
     </script>
     <style>
-        body {
-            font-family: 'Cairo', 'Inter', sans-serif;
-            background-color: #0d0d12;
-            color: #ececee;
-        }
-
-        /* Scrollbar Styling */
-        ::-webkit-scrollbar {
-            width: 5px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #2a2a3a;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #3b3b52;
-        }
-
-        /* Typing cursor animation */
-        .typing-indicator::after {
-            content: '▋';
+        body { font-family: 'Cairo', sans-serif; background-color: #000000; color: #ececee; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #22222e; border-radius: 10px; }
+        
+        /* Perfect White Morphing Loader: Circle <-> Square */
+        .morph-loader {
+            width: 16px;
+            height: 16px;
+            background-color: #ffffff;
+            animation: morphing 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
             display: inline-block;
-            animation: blink 0.8s infinite;
-            color: #818cf8;
-            margin-right: 2px;
-        }
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
         }
 
-        /* Markdown Styles in Responses */
-        .prose pre {
-            background-color: #12121a;
-            border: 1px solid #282838;
-            border-radius: 0.75rem;
-            padding: 1rem;
-            overflow-x: auto;
-            direction: ltr;
-            text-align: left;
-            margin-top: 0.75rem;
-            margin-bottom: 0.75rem;
+        @keyframes morphing {
+            0%, 100% {
+                border-radius: 50%; /* Circle */
+                transform: rotate(0deg) scale(1);
+                background-color: #ffffff;
+            }
+            50% {
+                border-radius: 4px; /* Square */
+                transform: rotate(180deg) scale(0.9);
+                background-color: #d1d5db;
+            }
         }
-        .prose code {
-            font-family: monospace;
-            color: #e2e8f0;
-            background: rgba(255,255,255,0.06);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.9em;
-        }
-        .prose pre code {
-            background: transparent;
-            padding: 0;
-        }
-        .prose p {
-            margin-bottom: 0.75rem;
-            line-height: 1.7;
-        }
-        .prose ul {
-            list-style-type: disc;
-            padding-right: 1.25rem;
-            margin-bottom: 0.75rem;
-        }
-        .prose ol {
-            list-style-type: decimal;
-            padding-right: 1.25rem;
-            margin-bottom: 0.75rem;
-        }
-        .prose strong {
-            color: #ffffff;
-            font-weight: 600;
-        }
-        .prose a {
-            color: #818cf8;
-            text-decoration: underline;
+
+        .prose pre { background-color: #0d0d12 !important; padding: 1rem; border-radius: 0.75rem; direction: ltr; text-align: left; border: 1px solid #1f1f2e; }
+        .prose code { color: #f43f5e; font-size: 0.9em; }
+        
+        /* Sidebar transition */
+        #sidebar {
+            transition: transform 0.3s ease-in-out;
         }
     </style>
 </head>
-<body class="h-screen flex flex-col justify-between overflow-hidden bg-darkbg text-gray-100">
+<body class="bg-black text-gray-200 h-screen flex flex-col justify-between overflow-hidden">
 
-    <!-- Top Navigation Header -->
-    <header class="w-full h-14 px-6 flex items-center justify-between border-b border-gray-800/60 bg-darkbg/80 backdrop-blur-md z-10 shrink-0">
-        <div class="flex items-center space-x-3 space-x-reverse">
-            <span class="text-xl font-bold tracking-wide text-white">ميتيس</span>
-            <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 font-medium border border-indigo-500/20">3.1 Flash</span>
+    <!-- Sidebar for Chat History -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/60 z-40 hidden backdrop-blur-sm"></div>
+    <aside id="sidebar" class="fixed top-0 right-0 bottom-0 w-72 bg-[#0a0a0e] border-l border-gray-900 z-50 transform translate-x-full flex flex-col justify-between p-4 shadow-2xl">
+        <div>
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-white font-semibold text-sm tracking-wide">سجل المحادثات</h3>
+                <button id="closeSidebar" class="text-gray-400 hover:text-white p-1.5"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <button id="newChatBtn" class="w-full bg-[#14141c] hover:bg-[#1a1a24] text-white border border-gray-800 text-xs py-2.5 px-3 rounded-xl flex items-center gap-2 transition-all mb-4">
+                <i class="fa-solid fa-plus text-xs"></i>
+                <span>محادثة جديدة</span>
+            </button>
+            <div id="historyList" class="space-y-1 overflow-y-auto max-h-[calc(100vh-160px)] pr-1">
+                <!-- History items injected dynamically -->
+            </div>
         </div>
+        <div class="text-xs text-gray-600 text-center py-2 border-t border-gray-900">
+            Metis AI - محفوظ محلياً
+        </div>
+    </aside>
+
+    <!-- Header -->
+    <header class="w-full border-b border-gray-900 p-4 flex justify-between items-center bg-black/90 backdrop-blur z-10">
         <div class="flex items-center gap-3">
-            <button id="clear-chat-btn" title="محادثة جديدة" class="text-gray-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/5">
-                <i class="fa-regular font-light fa-pen-to-square text-lg"></i>
-            </button>
-            <button id="settings-btn" title="الإعدادات" class="text-gray-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/5">
-                <i class="fa-solid fa-sliders text-lg"></i>
-            </button>
+            <button id="openSidebar" class="text-gray-400 hover:text-white p-1 text-sm"><i class="fa-solid fa-bars"></i></button>
+            <span class="text-xl font-semibold tracking-wide text-white">Metis</span>
         </div>
+        <button id="clearChatHeader" class="text-gray-400 hover:text-white transition-all text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0f0f13] border border-gray-800 hover:border-gray-700">
+            <i class="fa-solid fa-rotate-right text-xs"></i>
+            <span>محادثة جديدة</span>
+        </button>
     </header>
 
-    <!-- Main Chat Container -->
-    <main id="chat-container" class="flex-1 overflow-y-auto px-4 md:px-0 py-6 w-full max-w-3xl mx-auto flex flex-col space-y-6">
-        
-        <!-- Welcome Screen (Centered Minimalist Text) -->
-        <div id="welcome-screen" class="flex-1 flex flex-col items-center justify-center text-center my-auto transition-all duration-300">
-            <h1 class="text-3xl md:text-4xl font-bold text-white mb-3">كيف يمكنني مساعدتك اليوم؟</h1>
-            <p class="text-gray-400 text-sm max-w-md">اسأل ميتيس أي سؤال، اطلب كتابة كود، أو قم بتحليل البيانات بكل سهولة.</p>
+    <!-- Chat Area -->
+    <main id="chatBox" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 max-w-3xl w-full mx-auto">
+        <!-- Minimal Welcome Screen -->
+        <div id="welcomeScreen" class="text-center my-auto py-24 flex flex-col items-center justify-center h-full space-y-3">
+            <h2 class="text-3xl font-semibold text-white tracking-tight">Metis</h2>
+            <p class="text-gray-400 text-sm">كيف يمكنني مساعدتك اليوم؟</p>
         </div>
-
-        <!-- Chat Messages List -->
-        <div id="messages-list" class="w-full space-y-6 flex flex-col hidden">
-            <!-- Messages dynamic injection -->
-        </div>
-
     </main>
 
-    <!-- Bottom Input Container -->
-    <footer class="w-full max-w-3xl mx-auto px-4 pb-6 pt-2 shrink-0">
-        <form id="chat-form" class="relative flex items-center bg-darkcard border border-gray-800 focus-within:border-gray-700 rounded-2xl shadow-2xl transition-all">
-            <textarea 
-                id="user-input" 
-                rows="1" 
-                placeholder="اسأل ميتيس..." 
-                class="w-full bg-transparent text-gray-100 placeholder-gray-500 py-4 pr-5 pl-14 resize-none focus:outline-none text-base leading-relaxed max-h-48 overflow-y-auto"
-                style="min-height: 56px;"></textarea>
-            
-            <button 
-                type="submit" 
-                id="send-btn"
-                disabled
-                class="absolute left-3 p-2.5 rounded-xl bg-white text-black disabled:bg-gray-800 disabled:text-gray-600 transition-all cursor-pointer disabled:cursor-not-allowed">
-                <i class="fa-solid fa-arrow-up text-base"></i>
-            </button>
-        </form>
-        <div class="text-center mt-2">
-            <span class="text-[11px] text-gray-600">قد يعرض ميتيس معلومات غير دقيقة، يرجى التحقق من المصادر.</span>
+    <!-- Input Area -->
+    <footer class="p-4 bg-black border-t border-gray-900">
+        <div class="max-w-3xl mx-auto">
+            <!-- File Preview Area -->
+            <div id="filePreviewContainer" class="hidden mb-2 flex items-center gap-2 bg-[#0f0f13] border border-gray-800 p-2 rounded-xl w-fit">
+                <img id="imagePreview" src="" class="w-10 h-10 object-cover rounded-lg hidden" alt="Preview">
+                <span id="fileName" class="text-xs text-gray-300 truncate max-w-xs px-2"></span>
+                <button type="button" id="removeFile" class="text-gray-400 hover:text-red-400 p-1"><i class="fa-solid fa-xmark text-xs"></i></button>
+            </div>
+
+            <form id="chatForm" class="flex items-end gap-2 bg-[#0f0f13] border border-gray-800 rounded-2xl p-2.5 focus-within:border-gray-600 transition-all shadow-lg">
+                <!-- File Upload Button -->
+                <label class="cursor-pointer text-gray-400 hover:text-white p-2.5 rounded-xl hover:bg-gray-800/50 transition-all flex items-center justify-center">
+                    <i class="fa-solid fa-paperclip text-sm"></i>
+                    <input type="file" id="fileInput" class="hidden" accept="image/*,.txt,.pdf">
+                </label>
+
+                <!-- Voice Input Button -->
+                <button type="button" id="micBtn" class="text-gray-400 hover:text-white p-2.5 rounded-xl hover:bg-gray-800/50 transition-all flex items-center justify-center">
+                    <i class="fa-solid fa-microphone text-sm" id="micIcon"></i>
+                </button>
+
+                <!-- Input Field -->
+                <textarea id="userInput" rows="1" placeholder="اسأل ميتيس..." class="flex-1 bg-transparent text-gray-100 placeholder-gray-500 px-2 py-2 focus:outline-none resize-none max-h-32 text-sm leading-relaxed"></textarea>
+                
+                <!-- Send Button -->
+                <button type="submit" id="sendBtn" class="bg-white hover:bg-gray-200 text-black w-9 h-9 rounded-xl flex items-center justify-center transition-all disabled:opacity-30 font-medium">
+                    <i class="fa-solid fa-arrow-up text-xs"></i>
+                </button>
+            </form>
         </div>
     </footer>
 
-    <!-- Settings Modal -->
-    <div id="settings-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-200">
-        <div class="bg-darkcard border border-gray-800 rounded-2xl p-6 w-full max-w-md shadow-2xl transform scale-95 transition-transform duration-200" id="settings-card">
-            <div class="flex items-center justify-between mb-5">
-                <h3 class="text-lg font-bold text-white">إعدادات النظام</h3>
-                <button id="close-settings" class="text-gray-400 hover:text-white text-lg">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-2">مفتاح API الخاص بك (Gemini API Key)</label>
-                    <input 
-                        type="password" 
-                        id="api-key-input" 
-                        placeholder="أدخل مفتاح AI..." 
-                        class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors">
-                    <p class="text-[11px] text-gray-500 mt-2">المفتاح يتم حفظه محلياً في متصفحك فقط ولا يشارك مع أي طرف آخر.</p>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-2">تعليمات النظام (System Prompt)</label>
-                    <textarea 
-                        id="system-prompt-input" 
-                        rows="3"
-                        placeholder="حدد طريقة إجابة ميتيس..." 
-                        class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors">أنت مساعد ذكاء اصطناعي محترف وفاخر يدعى "ميتيس". تجيب بدقة، وضوح، وأسلوب عصري أنيق.</textarea>
-                </div>
-            </div>
-
-            <div class="mt-6 flex justify-end gap-3">
-                <button id="save-settings" class="w-full bg-white text-black font-semibold py-2.5 rounded-xl hover:bg-gray-200 transition-colors text-sm">
-                    حفظ التغييرات
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- JavaScript Logic -->
+    <!-- Script Logic -->
     <script>
-        // App State
-        const state = {
-            apiKey: localStorage.getItem('metis_api_key') || '',
-            systemPrompt: localStorage.getItem('metis_system_prompt') || 'أنت مساعد ذكاء اصطناعي محترف وفاخر يدعى "ميتيس". تجيب بدقة، وضوح، وأسلوب عصري أنيق.',
-            messages: [],
-            isGenerating: false
-        };
+        const apiKey = "AQ.Ab8RN6IJRaRQ4J-Mc3kwJWKfRn4X6E6hr32qo-6S9SPksbgAeA";
+        const chatBox = document.getElementById('chatBox');
+        const chatForm = document.getElementById('chatForm');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const clearChatHeader = document.getElementById('clearChatHeader');
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const fileInput = document.getElementById('fileInput');
+        const filePreviewContainer = document.getElementById('filePreviewContainer');
+        const imagePreview = document.getElementById('imagePreview');
+        const fileName = document.getElementById('fileName');
+        const removeFile = document.getElementById('removeFile');
+        const micBtn = document.getElementById('micBtn');
+        const micIcon = document.getElementById('micIcon');
+        
+        // Sidebar elements
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const openSidebar = document.getElementById('openSidebar');
+        const closeSidebar = document.getElementById('closeSidebar');
+        const newChatBtn = document.getElementById('newChatBtn');
+        const historyList = document.getElementById('historyList');
 
-        // DOM Elements
-        const elements = {
-            chatContainer: document.getElementById('chat-container'),
-            welcomeScreen: document.getElementById('welcome-screen'),
-            messagesList: document.getElementById('messages-list'),
-            chatForm: document.getElementById('chat-form'),
-            userInput: document.getElementById('user-input'),
-            sendBtn: document.getElementById('send-btn'),
-            clearChatBtn: document.getElementById('clear-chat-btn'),
-            settingsBtn: document.getElementById('settings-btn'),
-            settingsModal: document.getElementById('settings-modal'),
-            settingsCard: document.getElementById('settings-card'),
-            closeSettings: document.getElementById('close-settings'),
-            saveSettings: document.getElementById('save-settings'),
-            apiKeyInput: document.getElementById('api-key-input'),
-            systemPromptInput: document.getElementById('system-prompt-input')
-        };
+        let currentChatId = localStorage.getItem('current_chat_id') || 'chat_' + Date.now();
+        let chats = JSON.parse(localStorage.getItem('metis_chats') || '{}');
+        let attachedFile = null;
+        let isRecording = false;
+        let recognition = null;
 
-        // Initialize App
-        window.addEventListener('DOMContentLoaded', () => {
-            elements.apiKeyInput.value = state.apiKey;
-            elements.systemPromptInput.value = state.systemPrompt;
+        // Initialize Voice Recognition
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'ar-SA';
 
-            // Configure Marked Options
-            marked.setOptions({
-                highlight: function(code, lang) {
-                    if (lang && hljs.getLanguage(lang)) {
-                        return hljs.highlight(code, { language: lang }).value;
-                    }
-                    return hljs.highlightAuto(code).value;
-                },
-                breaks: true
-            });
-
-            setupEventListeners();
-        });
-
-        // Event Listeners
-        function setupEventListeners() {
-            // Textarea Auto Resize & Button Enable Logic
-            elements.userInput.addEventListener('input', () => {
-                elements.userInput.style.height = 'auto';
-                elements.userInput.style.height = Math.min(elements.userInput.scrollHeight, 192) + 'px';
-                elements.sendBtn.disabled = !elements.userInput.value.trim() || state.isGenerating;
-            });
-
-            // Handle Enter Key Press
-            elements.userInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    if (elements.userInput.value.trim() && !state.isGenerating) {
-                        elements.chatForm.dispatchEvent(new Event('submit'));
-                    }
-                }
-            });
-
-            // Form Submit
-            elements.chatForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const text = elements.userInput.value.trim();
-                if (!text || state.isGenerating) return;
-                
-                handleUserSend(text);
-            });
-
-            // Clear Chat
-            elements.clearChatBtn.addEventListener('click', () => {
-                state.messages = [];
-                elements.messagesList.innerHTML = '';
-                elements.messagesList.classList.add('hidden');
-                elements.welcomeScreen.classList.remove('hidden');
-            });
-
-            // Settings Modal Open/Close
-            elements.settingsBtn.addEventListener('click', openSettings);
-            elements.closeSettings.addEventListener('click', closeSettings);
-            elements.settingsModal.addEventListener('click', (e) => {
-                if (e.target === elements.settingsModal) closeSettings();
-            });
-
-            // Save Settings
-            elements.saveSettings.addEventListener('click', () => {
-                state.apiKey = elements.apiKeyInput.value.trim();
-                state.systemPrompt = elements.systemPromptInput.value.trim();
-
-                localStorage.setItem('metis_api_key', state.apiKey);
-                localStorage.setItem('metis_system_prompt', state.systemPrompt);
-
-                closeSettings();
-            });
-        }
-
-        function openSettings() {
-            elements.settingsModal.classList.remove('hidden');
-            setTimeout(() => {
-                elements.settingsModal.classList.remove('opacity-0');
-                elements.settingsCard.classList.remove('scale-95');
-            }, 10);
-        }
-
-        function closeSettings() {
-            elements.settingsModal.classList.add('opacity-0');
-            elements.settingsCard.classList.add('scale-95');
-            setTimeout(() => {
-                elements.settingsModal.classList.add('hidden');
-            }, 200);
-        }
-
-        // Handle User Input Submission
-        async function handleUserSend(text) {
-            // Hide welcome screen if first message
-            if (state.messages.length === 0) {
-                elements.welcomeScreen.classList.add('hidden');
-                elements.messagesList.classList.remove('hidden');
-            }
-
-            // Reset input field
-            elements.userInput.value = '';
-            elements.userInput.style.height = '56px';
-            elements.sendBtn.disabled = true;
-
-            // Push User Message
-            state.messages.push({ role: 'user', text: text });
-            renderUserMessage(text);
-
-            // Scroll to bottom
-            scrollToBottom();
-
-            // Fetch Gemini AI Stream/Response
-            await fetchMetisResponse();
-        }
-
-        // Render User Message (Gray Curved Bubble on the Left/Right)
-        function renderUserMessage(text) {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'flex justify-start w-full';
-            
-            const bubble = document.createElement('div');
-            bubble.className = 'bg-userbubble text-gray-100 px-5 py-3.5 rounded-2xl max-w-[85%] sm:max-w-[75%] leading-relaxed text-sm sm:text-base border border-gray-800/50 shadow-sm';
-            bubble.textContent = text;
-            
-            msgDiv.appendChild(bubble);
-            elements.messagesList.appendChild(msgDiv);
-        }
-
-        // Render Metis AI Response Container (No bubble, Clean Free Text)
-        function createMetisMessageContainer() {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'flex flex-col w-full text-gray-100 text-sm sm:text-base leading-relaxed pl-2 pr-1 pt-1';
-
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'prose text-gray-200 w-full typing-indicator';
-            
-            msgDiv.appendChild(contentDiv);
-            elements.messagesList.appendChild(msgDiv);
-            
-            return contentDiv;
-        }
-
-        // Call Gemini API
-        async function fetchMetisResponse() {
-            state.isGenerating = true;
-            const contentContainer = createMetisMessageContainer();
-            scrollToBottom();
-
-            // Format contents payload for Gemini API
-            const contents = state.messages.map(m => ({
-                role: m.role === 'user' ? 'user' : 'model',
-                parts: [{ text: m.text }]
-            }));
-
-            const payload = {
-                contents: contents,
-                systemInstruction: {
-                    parts: [{ text: state.systemPrompt }]
-                }
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                userInput.value += (userInput.value ? ' ' : '') + transcript;
+                userInput.dispatchEvent(new Event('input'));
             };
 
-            const apiKey = state.apiKey;
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+            recognition.onend = () => {
+                isRecording = false;
+                micIcon.className = "fa-solid fa-microphone text-sm";
+                micBtn.classList.remove('text-red-500');
+            };
+        }
+
+        micBtn.addEventListener('click', () => {
+            if (!recognition) {
+                alert('عذراً، المتصفح الخاص بك لا يدعم التسجيل الصوتي المباشر.');
+                return;
+            }
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                recognition.start();
+                isRecording = true;
+                micIcon.className = "fa-solid fa-microphone-lines text-sm animate-pulse";
+                micBtn.classList.add('text-red-500');
+            }
+        });
+
+        userInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            attachedFile = file;
+            fileName.textContent = file.name;
+            filePreviewContainer.classList.remove('hidden');
+
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imagePreview.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.classList.add('hidden');
+            }
+        });
+
+        removeFile.addEventListener('click', () => {
+            attachedFile = null;
+            fileInput.value = '';
+            filePreviewContainer.classList.add('hidden');
+            imagePreview.classList.add('hidden');
+        });
+
+        // Sidebar toggles
+        openSidebar.addEventListener('click', () => {
+            sidebar.classList.remove('translate-x-full');
+            sidebarOverlay.classList.remove('hidden');
+            renderHistory();
+        });
+
+        function closeSidebarMenu() {
+            sidebar.classList.add('translate-x-full');
+            sidebarOverlay.classList.add('hidden');
+        }
+
+        closeSidebar.addEventListener('click', closeSidebarMenu);
+        sidebarOverlay.addEventListener('click', closeSidebarMenu);
+
+        newChatBtn.addEventListener('click', () => {
+            createNewChat();
+            closeSidebarMenu();
+        });
+
+        clearChatHeader.addEventListener('click', () => {
+            createNewChat();
+        });
+
+        function createNewChat() {
+            currentChatId = 'chat_' + Date.now();
+            localStorage.setItem('current_chat_id', currentChatId);
+            chatBox.innerHTML = `
+                <div id="welcomeScreen" class="text-center my-auto py-24 flex flex-col items-center justify-center h-full space-y-3">
+                    <h2 class="text-3xl font-semibold text-white tracking-tight">Metis</h2>
+                    <p class="text-gray-400 text-sm">كيف يمكنني مساعدتك اليوم؟</p>
+                </div>
+            `;
+        }
+
+        function saveMessageToStorage(sender, content, rawParts) {
+            if (!chats[currentChatId]) {
+                chats[currentChatId] = {
+                    title: content.replace(/<[^>]*>?/gm, '').substring(0, 30) || 'محادثة جديدة',
+                    messages: []
+                };
+            }
+            chats[currentChatId].messages.push({ sender, content, rawParts });
+            localStorage.setItem('metis_chats', JSON.stringify(chats));
+        }
+
+        function loadChat(chatId) {
+            currentChatId = chatId;
+            localStorage.setItem('current_chat_id', currentChatId);
+            chatBox.innerHTML = '';
+            
+            const chatData = chats[chatId];
+            if (!chatData || chatData.messages.length === 0) {
+                createNewChat();
+                return;
+            }
+
+            chatData.messages.forEach(msg => {
+                appendMessageDOM(msg.sender, msg.content);
+            });
+            closeSidebarMenu();
+        }
+
+        function renderHistory() {
+            historyList.innerHTML = '';
+            const keys = Object.keys(chats).reverse();
+            if (keys.length === 0) {
+                historyList.innerHTML = '<div class="text-gray-600 text-xs text-center py-4">لا توجد محادثات سابقة</div>';
+                return;
+            }
+
+            keys.forEach(id => {
+                const chat = chats[id];
+                const btn = document.createElement('button');
+                btn.className = `w-full text-right text-xs py-2 px-3 rounded-xl truncate transition-all flex items-center justify-between group ${id === currentChatId ? 'bg-[#1a1a24] text-white' : 'text-gray-400 hover:bg-[#121218] hover:text-white'}`;
+                btn.innerHTML = `<span class="truncate">${chat.title || 'محادثة'}</span><i class="fa-solid fa-chevron-left text-[10px] opacity-0 group-hover:opacity-100"></i>`;
+                btn.addEventListener('click', () => loadChat(id));
+                historyList.appendChild(btn);
+            });
+        }
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = userInput.value.trim();
+            if (!text && !attachedFile) return;
+
+            if (welcomeScreen) welcomeScreen.style.display = 'none';
+
+            let parts = [];
+            let displayHtml = text;
+
+            if (attachedFile) {
+                if (attachedFile.type.startsWith('image/')) {
+                    const base64Data = await toBase64(attachedFile);
+                    const base64Clean = base64Data.split(',')[1];
+                    parts.push({
+                        inline_data: { mime_type: attachedFile.type, data: base64Clean }
+                    });
+                    displayHtml += `<br><img src="${base64Data}" class="mt-2 max-w-xs rounded-lg border border-gray-800">`;
+                } else {
+                    const fileText = await attachedFile.text();
+                    parts.push({ text: `[ملف مرفق: ${attachedFile.name}]\n${fileText}` });
+                    displayHtml += `<br><span class="text-xs text-indigo-400">📎 ${attachedFile.name}</span>`;
+                }
+            }
+
+            if (text) parts.push({ text: text });
+
+            appendMessage('user', displayHtml, [{ text: text || "ملف مرفق" }]);
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            removeFile.click();
+
+            const loadingId = appendLoading();
+            sendBtn.disabled = true;
+
+            // Build history payload for Gemini API
+            let apiHistory = [];
+            if (chats[currentChatId] && chats[currentChatId].messages) {
+                chats[currentChatId].messages.forEach(m => {
+                    apiHistory.push({
+                        role: m.sender === 'user' ? 'user' : 'model',
+                        parts: m.rawParts || [{ text: m.content }]
+                    });
+                });
+            } else {
+                apiHistory.push({ role: "user", parts: parts });
+            }
 
             try {
-                const response = await fetch(apiUrl, {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ contents: apiHistory })
                 });
 
-                if (!response.ok) {
-                    const errData = await response.json();
-                    throw new Error(errData.error?.message || 'تعذر الاتصال بالخدمة.');
+                const data = await response.json();
+                removeLoading(loadingId);
+
+                if (data.candidates && data.candidates[0].content.parts[0].text) {
+                    const aiReply = data.candidates[0].content.parts[0].text;
+                    appendMessage('ai', aiReply, [{ text: aiReply }]);
+                } else {
+                    appendMessage('ai', 'عذراً، تعذر الحصول على رد.', [{ text: 'خطأ' }]);
                 }
-
-                const result = await response.json();
-                const aiText = result.candidates?.[0]?.content?.parts?.[0]?.text || 'لم أتمكن من إيجاد إجابة مناسبة.';
-
-                // Typing animation effect
-                await animateTyping(contentContainer, aiText);
-
-                // Save to history
-                state.messages.push({ role: 'model', text: aiText });
-
             } catch (error) {
-                contentContainer.classList.remove('typing-indicator');
-                contentContainer.innerHTML = `<span class="text-red-400">عذراً، حدث خطأ: ${error.message}</span>`;
+                removeLoading(loadingId);
+                appendMessage('ai', 'حدث خطأ في الاتصال بالشبكة.', [{ text: 'خطأ اتصال' }]);
             } finally {
-                state.isGenerating = false;
-                elements.sendBtn.disabled = !elements.userInput.value.trim();
+                sendBtn.disabled = false;
             }
-        }
+        });
 
-        // Simulate Smooth Text Typing Effect
-        async function animateTyping(container, fullText) {
-            container.classList.add('typing-indicator');
-            let currentText = '';
-            const chunkSize = 4; // Render in chunks for speed and smoothness
-            
-            for (let i = 0; i < fullText.length; i += chunkSize) {
-                currentText += fullText.slice(i, i + chunkSize);
-                container.innerHTML = marked.parse(currentText);
-                scrollToBottom();
-                await new Promise(resolve => setTimeout(resolve, 12));
-            }
-
-            container.classList.remove('typing-indicator');
-            container.innerHTML = marked.parse(fullText);
-            
-            // Re-highlight code blocks
-            container.querySelectorAll('pre code').forEach((block) => {
-                hljs.highlightElement(block);
-            });
-            
-            scrollToBottom();
-        }
-
-        // Auto Scroll Functionality
-        function scrollToBottom() {
-            elements.chatContainer.scrollTo({
-                top: elements.chatContainer.scrollHeight,
-                behavior: 'smooth'
+        function toBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
             });
         }
-    </script>
-</body>
-</html>
+
+        function appendMessage(sender, htmlContent, rawParts) {
+            appendMessageDOM(sender, htmlContent);
+            saveMessageToStorage(sender, htmlContent, rawParts);
+            if (welcomeScreen) welcomeScreen.style.display = 'none';
+        }
+
+        function appendMessageDOM(sender, htmlContent) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
+            
+            const isUser = sender === 'user';
+            const content = isUser ? htmlContent : marked.parse(htmlContent);
+
+            msgDiv.innerHTML = `
+                <div class="max-w-[85%] md:max-w-[75%] rounded-2xl px-4 py-3 ${isUser ? 'bg-[#1a1a24] text-white rounded-br-none' : 'bg-[#0f0f13] text-gray-200 border border-gray-800/60 rounded-bl-none prose prose-invert'}">
+                    ${content}
+                </div>
+            `;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function appendLoading() {
+            const id = 'loading-' + Date.now();
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = id;
+            loadingDiv.className = 'flex justify-start items-center gap-3 my-2';
+            loadingDiv.innerHTML = `
+                <div class="bg-[#0f0f13] border border-gray-800/60 rounded-2xl rounded-bl-none px-4 py-3 flex items-center gap-3">
+                    <div class="morph-loader"></div>
+                </div>
+            `;
+            chatBox.appendChild(loadingDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            r
