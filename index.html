@@ -156,7 +156,7 @@
 
     <!-- Script Logic -->
     <script>
-        const apiKey = "AQ.Ab8RN6IJRaRQ4J-Mc3kwJWKfRn4X6E6hr32qo-6S9SPksbgAeA";
+        const apiKey = "AQ.Ab8RN6JguvlqQmDtuCl5TACaVdhKfdcsEERPZ7-31fO-AATldA";
         const chatBox = document.getElementById('chatBox');
         const chatForm = document.getElementById('chatForm');
         const userInput = document.getElementById('userInput');
@@ -181,7 +181,6 @@
         let chats = JSON.parse(localStorage.getItem('metis_chats') || '{}');
         let currentChatId = localStorage.getItem('current_chat_id');
 
-        // Ensure valid current chat session
         if (!currentChatId || !chats[currentChatId]) {
             const keys = Object.keys(chats);
             if (keys.length > 0) {
@@ -305,7 +304,6 @@
                 chats[currentChatId] = { title: 'محادثة جديدة', messages: [] };
             }
             
-            // If it's the first user message, update chat title
             if (sender === 'user' && chats[currentChatId].title === 'محادثة جديدة') {
                 const cleanText = content.replace(/<[^>]*>?/gm, '').trim();
                 if (cleanText) {
@@ -439,4 +437,6 @@
             });
         }
 
-        function appendMessag
+        function appendMessage(sender, htmlContent, rawParts) {
+            appendMessageDOM(sender, htmlContent);
+            saveMessageT
